@@ -115,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
-    <Content Include="Global.asax" />
     <Content Include="index.html" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />
@@ -125,10 +124,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassHub.cs" />
-    <Compile Include="ClassroomController1.cs" />
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>

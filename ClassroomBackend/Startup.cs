@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 
 [assembly: OwinStartup("StartClassroom", typeof(ClassroomBackend.Startup))]
-
 namespace ClassroomBackend
 {
     public class Startup
