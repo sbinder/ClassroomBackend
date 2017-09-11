@@ -107,6 +107,7 @@ CREATE TABLE `student` (
   `expires` date NOT NULL,
   `male` bit(1) NOT NULL,
   `trial` bit(1) NOT NULL,
+  `liturgy` int(11) DEFAULT NULL,
   PRIMARY KEY (`stid`),
   UNIQUE KEY `stid_UNIQUE` (`stid`),
   KEY `fk_student_parent_idx` (`parent`),
@@ -120,8 +121,8 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (1,1,'2018-01-01','slast','sfirst',1,NULL,NULL,NULL,NULL,NULL,'2018-07-01','','\0');
-INSERT INTO `student` VALUES (2,1,'2018-07-05','student','test',2,NULL,NULL,NULL,NULL,NULL,'2017-06-30','\0','\0');
+INSERT INTO `student` VALUES (1,1,'2018-01-01','slast','sfirst',1,NULL,NULL,NULL,NULL,NULL,'2018-07-01','','\0',0);
+INSERT INTO `student` VALUES (2,1,'2018-07-05','student','test',2,NULL,NULL,NULL,NULL,NULL,'2017-06-30','\0','\0',0);
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -134,4 +135,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-09-11 13:09:10
+-- Dump completed on 2017-09-11 16:51:11

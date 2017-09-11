@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 
+
 namespace ClassroomBackend
 {
     public class ClassHub : Hub
