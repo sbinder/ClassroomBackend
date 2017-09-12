@@ -22,13 +22,27 @@ namespace ClassroomBackend.Controllers
             MySqlConnection db = new MySqlConnection(connectionString);
             MySqlCommand cmd = db.CreateCommand();
             cmd.CommandText = "select stid, target, lname, fname, liturgy from student where org = 1";
-            List<Student> students;
+            List<Student> students = new List<Student>();
             try
             {
                 db.Open();
                 MySqlDataReader reader = cmd.ExecuteReader();
-                students = Student.GetStudentList(reader);
+
+                while (reader.Read())
+                {
+                    var s = new Student
+                    {
+                        stid = reader.GetUInt32("stid"),
+                        fname = reader.GetString("fname"),
+                        lname = reader.GetString("lname"),
+                        target = reader.GetDateTime("target"),
+                        group = reader.GetInt16("liturgy")
+                    };
+                    students.Add(s);
+                }
+
                 return students;
+
             } catch (Exception r)
             {
                 Console.WriteLine("Error: " + r);                
