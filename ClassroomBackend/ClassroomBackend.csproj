@@ -138,6 +138,7 @@
   <ItemGroup>
     <Compile Include="ClassHub.cs" />
     <Compile Include="Controllers\ClassroomController.cs" />
+    <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
