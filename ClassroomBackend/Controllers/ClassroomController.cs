@@ -14,12 +14,14 @@ namespace ClassroomBackend.Controllers
     public class ClassroomController : ApiController
     {
 
-        private string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
+        private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
 
-        //[HttpGet]
-        public IEnumerable<Student> Get()
+        MySqlConnection db = new MySqlConnection(connectionString);
+
+
+        [HttpGet]
+        public IEnumerable<Student> Students()
         {
-            MySqlConnection db = new MySqlConnection(connectionString);
             MySqlCommand cmd = db.CreateCommand();
             cmd.CommandText = "select stid, target, lname, fname, liturgy from student where org = 1";
             List<Student> students = new List<Student>();
