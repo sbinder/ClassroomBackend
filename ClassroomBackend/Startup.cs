@@ -4,6 +4,7 @@ using Microsoft.Owin;
 using Owin;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
+using System.Web.Http.Cors;
 
 [assembly: OwinStartup("StartClassroom", typeof(ClassroomBackend.Startup))]
 namespace ClassroomBackend
@@ -38,6 +39,10 @@ namespace ClassroomBackend
                 map.RunSignalR(hubConfiguration);
             });
 
+            var corsAttr = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(corsAttr);
+
+            //config.EnableCors();
             config.EnsureInitialized(); //Nice to check for issues before first request
 
             app.UseWebApi(config);
