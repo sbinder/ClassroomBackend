@@ -6,57 +6,79 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Results;
 using System.Web.Http.Cors;
+using ClassroomBackend.Models;
+
 
 namespace ClassroomBackend.Controllers
 {
-    [EnableCors(origins: "*", headers: "*", methods: "*", exposedHeaders: "X-Custom-Header")]
     public class ProgressController : ApiController
     {
         private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
-        [HttpPost]
-        public HttpResponseMessage Progress(List<int> students)
-
+        [HttpPut]
+        public HttpResponseMessage Progress(Progress progress)
         {
-            return new HttpResponseMessage(HttpStatusCode.OK);
-/*
-            MySqlCommand cmd = db.CreateCommand();
-            cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = 1 and active = 1";
-            List<Prayer> prayers = new List<Prayer>();
+            // replace with real teacher ID
+            const uint teacher = 1;
+
             try
             {
-                db.Open();
-                MySqlDataReader reader = cmd.ExecuteReader();
+                var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                MySqlCommand cmd = db.CreateCommand();
+                cmd.CommandText = @"select count(stid) from progress where stid = @stid and taskid = @prid and date = @today";
+                cmd.Parameters.AddWithValue("@stid", progress.stid);
+                cmd.Parameters.AddWithValue("@prid", progress.prid);
+                cmd.Parameters.AddWithValue("@today", today);
 
-                while (reader.Read())
+                db.Open();
+                var rowCount = int.Parse(cmd.ExecuteScalar().ToString());
+                if (rowCount > 0)
                 {
-                    var p = new Prayer
-                    {
-                        prid = reader.GetUInt32("TaskID"),
-                        ordinal = reader.GetInt32("ordinal"),
-                        groupa = reader.GetBoolean("groupa"),
-                        groupb = reader.GetBoolean("groupb"),
-                        groupx = reader.GetBoolean("groupx"),
-                        description = reader.GetString("taskname")
-                    };
-                    prayers.Add(p);
+                    // already present: update
+                    var ucmd = db.CreateCommand();
+                    ucmd.CommandText = @"update progress set rating=@rating, scomment=@scomment, tcomment=@tcomment where stid=@stid and taskid=@prid and date=@date";
+                    ucmd.Parameters.AddWithValue("@stid", progress.stid);
+                    ucmd.Parameters.AddWithValue("@prid", progress.prid);
+                    ucmd.Parameters.AddWithValue("@date", today);
+                    ucmd.Parameters.AddWithValue("@tid", teacher);
+                    ucmd.Parameters.AddWithValue("@rating", progress.rating);
+                    ucmd.Parameters.AddWithValue("@scomment", progress.scomment);
+                    ucmd.Parameters.AddWithValue("@tcomment", progress.tcomment);
+                    ucmd.ExecuteNonQuery();
+                    var l = new HttpResponseMessage(HttpStatusCode.OK);
+                    l.Content = new StringContent("OK");
+                    return l;
+                }
+                else
+                {
+                    // not present: create
+                    var icmd = db.CreateCommand();
+                    icmd.CommandText = @"insert into progress (stid, taskid, date, tid, rating, scomment, tcomment) values (@stid, @prid, @date, @tid, @rating, @scomment, @tcomment)";
+                    icmd.Parameters.AddWithValue("@stid", progress.stid);
+                    icmd.Parameters.AddWithValue("@prid", progress.prid);
+                    icmd.Parameters.AddWithValue("@date", today);
+                    icmd.Parameters.AddWithValue("@tid", teacher);
+                    icmd.Parameters.AddWithValue("@rating", progress.rating);
+                    icmd.Parameters.AddWithValue("@scomment", progress.scomment);
+                    icmd.Parameters.AddWithValue("@tcomment", progress.tcomment);
+                    icmd.ExecuteNonQuery();
+                    var l = new HttpResponseMessage(HttpStatusCode.OK);
+                    l.Content = new StringContent("OK");
+                    return l;
+
                 }
 
-                return prayers;
+            } catch (Exception exo ) {
 
-            }
-            catch (Exception r)
-            {
-                Console.WriteLine("Error: " + r);
-            }
-
-            return new List<Prayer>();
+                // log exo - DO NOT RETURN IT!
+                var l = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                l.Content = new StringContent( exo.ToString() );
+                return l;
+            }                    
         }
-*/
-        }
-
     }
 }

@@ -147,6 +147,7 @@
     <Compile Include="Controllers\PrayersController.cs" />
     <Compile Include="Controllers\ProgressController.cs" />
     <Compile Include="Models\Prayer.cs" />
+    <Compile Include="Models\Progress.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

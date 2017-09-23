@@ -45,11 +45,50 @@ namespace ClassroomBackend.Controllers
 
                 return students;
 
-            } catch (Exception r)
+            }
+            catch (Exception r)
             {
-                Console.WriteLine("Error: " + r);                
+                Console.WriteLine("Error: " + r);
             }
             return new List<Student>();
+        }
+
+
+        [HttpPost]
+        public IEnumerable<Progress> Prayers(List<uint> students)
+        {
+            List<Progress> prayers = new List<Progress>();
+            var slist = String.Join(",", students);
+            MySqlCommand cmd = db.CreateCommand();
+            cmd.CommandText = "select stid, prid, date, rating, scomment, tcomment from progress where stid = 1 and taskid = 2 order by date desc limit 1";
+            try
+            {
+                db.Open();
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var p = new Progress
+                    {
+                        stid = reader.GetUInt32("stid"),
+                        prid = reader.GetUInt32("prid"),
+                        changed = reader.GetDateTime("date"),
+                        rating = reader.GetInt16("rating"),
+                        scomment = reader.GetString("scomment"),
+                        tcomment = reader.GetString("tcomment"),
+                        assigned = true
+                    };
+                    prayers.Add(p);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+
+            return prayers;
         }
     }
 }
