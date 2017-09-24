@@ -29,9 +29,9 @@ namespace ClassroomBackend.Controllers
             {
                 var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
                 MySqlCommand cmd = db.CreateCommand();
-                cmd.CommandText = @"select count(stid) from progress where stid = @stid and taskid = @prid and date = @today";
+                cmd.CommandText = @"select count(stid) from progress where stid = @stid and taskid = @taskid and date = @today";
                 cmd.Parameters.AddWithValue("@stid", progress.stid);
-                cmd.Parameters.AddWithValue("@prid", progress.prid);
+                cmd.Parameters.AddWithValue("@taskid", progress.taskid);
                 cmd.Parameters.AddWithValue("@today", today);
 
                 db.Open();
@@ -40,9 +40,9 @@ namespace ClassroomBackend.Controllers
                 {
                     // already present: update
                     var ucmd = db.CreateCommand();
-                    ucmd.CommandText = @"update progress set rating=@rating, scomment=@scomment, tcomment=@tcomment where stid=@stid and taskid=@prid and date=@date";
+                    ucmd.CommandText = @"update progress set rating=@rating, scomment=@scomment, tcomment=@tcomment where stid=@stid and taskid=@taskid and date=@date";
                     ucmd.Parameters.AddWithValue("@stid", progress.stid);
-                    ucmd.Parameters.AddWithValue("@prid", progress.prid);
+                    ucmd.Parameters.AddWithValue("@taskid", progress.taskid);
                     ucmd.Parameters.AddWithValue("@date", today);
                     ucmd.Parameters.AddWithValue("@tid", teacher);
                     ucmd.Parameters.AddWithValue("@rating", progress.rating);
@@ -57,9 +57,9 @@ namespace ClassroomBackend.Controllers
                 {
                     // not present: create
                     var icmd = db.CreateCommand();
-                    icmd.CommandText = @"insert into progress (stid, taskid, date, tid, rating, scomment, tcomment) values (@stid, @prid, @date, @tid, @rating, @scomment, @tcomment)";
+                    icmd.CommandText = @"insert into progress (stid, taskid, date, tid, rating, scomment, tcomment) values (@stid, @taskid, @date, @tid, @rating, @scomment, @tcomment)";
                     icmd.Parameters.AddWithValue("@stid", progress.stid);
-                    icmd.Parameters.AddWithValue("@prid", progress.prid);
+                    icmd.Parameters.AddWithValue("@taskid", progress.taskid);
                     icmd.Parameters.AddWithValue("@date", today);
                     icmd.Parameters.AddWithValue("@tid", teacher);
                     icmd.Parameters.AddWithValue("@rating", progress.rating);

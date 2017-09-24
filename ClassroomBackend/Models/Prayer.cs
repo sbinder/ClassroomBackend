@@ -7,7 +7,7 @@ namespace ClassroomBackend.Models
 {
     public class Prayer
     {
-        public uint prid;
+        public uint taskid;
         public int ordinal;
         public bool groupa;
         public bool groupb;

@@ -8,7 +8,7 @@ namespace ClassroomBackend.Models
     public class Progress
     {
         public uint stid;
-        public uint prid;
+        public uint taskid;
         public int rating;
         public bool assigned = false;
         public string tcomment;

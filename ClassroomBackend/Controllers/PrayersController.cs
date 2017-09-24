@@ -10,7 +10,7 @@ using System.Web.Http.Cors;
 
 namespace ClassroomBackend.Controllers
 {
-    [EnableCors(origins: "*", headers: "*", methods: "*", exposedHeaders: "X-Custom-Header")]
+    // [EnableCors(origins: "*", headers: "*", methods: "*", exposedHeaders: "X-Custom-Header")]
     public class PrayersController : ApiController
     {
 
@@ -33,7 +33,7 @@ namespace ClassroomBackend.Controllers
                 {
                     var p = new Prayer
                     {
-                        prid = reader.GetUInt32("TaskID"),
+                        taskid = reader.GetUInt32("taskid"),
                         ordinal = reader.GetInt32("ordinal"),
                         groupa = reader.GetBoolean("groupa"),
                         groupb = reader.GetBoolean("groupb"),

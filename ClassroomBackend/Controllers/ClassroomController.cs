@@ -102,7 +102,7 @@ namespace ClassroomBackend.Controllers
                     var p = new Progress
                     {
                         stid = reader.GetUInt32("stid"),
-                        prid = reader.GetUInt32("taskid"),
+                        taskid = reader.GetUInt32("taskid"),
                         changed = reader.GetDateTime("date"),
                         rating = safeInt(reader, "rating"),
                         scomment = safeString(reader, "scomment"),
