@@ -18,9 +18,31 @@ namespace ClassroomBackend.Controllers
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
+        private string safeString(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return reader.GetString(field);
+            }
+        }
+        private int safeInt(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return 0;
+            }
+            else
+            {
+                return reader.GetInt32(field);
+            }
+        }
 
         [HttpGet]
-        public IEnumerable<Student> Students()
+        public HttpResponseMessage Students()
         {
             MySqlCommand cmd = db.CreateCommand();
             cmd.CommandText = "select stid, target, lname, fname, liturgy from student where org = 1";
@@ -28,6 +50,7 @@ namespace ClassroomBackend.Controllers
             try
             {
                 db.Open();
+
                 MySqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -35,32 +58,40 @@ namespace ClassroomBackend.Controllers
                     var s = new Student
                     {
                         stid = reader.GetUInt32("stid"),
-                        fname = reader.GetString("fname"),
-                        lname = reader.GetString("lname"),
+                        fname = safeString(reader, "fname"), //reader.GetString("fname"),
+                        lname = safeString(reader, "lname"),    // reader.GetString("lname"),
                         target = reader.GetDateTime("target"),
-                        group = reader.GetInt16("liturgy")
+                        group = safeInt(reader, "liturgy")  //reader.GetInt16("liturgy")
                     };
                     students.Add(s);
                 }
-
-                return students;
+                IEnumerable<Student> responseBody = students;
+                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
 
             }
             catch (Exception r)
             {
-                Console.WriteLine("Error: " + r);
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+                // DO NOT DO THIS IN PRODUCTION!
+                var replacement = r.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0,255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
+                response.ReasonPhrase = replacement;
+                return response;
             }
-            return new List<Student>();
         }
 
 
         [HttpPost]
-        public IEnumerable<Progress> Prayers(List<uint> students)
+        //public IEnumerable<Progress> Prayers(List<uint> students)
+        public HttpResponseMessage Prayers(List<uint> students)
         {
             List<Progress> prayers = new List<Progress>();
             var slist = String.Join(",", students);
             MySqlCommand cmd = db.CreateCommand();
-            cmd.CommandText = "select stid, prid, date, rating, scomment, tcomment from progress where stid = 1 and taskid = 2 order by date desc limit 1";
+
+            cmd.CommandText = @"SELECT o.* FROM `progress` o LEFT JOIN `progress` b " +
+                " ON o.stid = b.stid AND o.taskid = b.taskid AND o.date < b.date " +
+                "WHERE o.stid in (" + slist + ") and b.date is NULL";
+
             try
             {
                 db.Open();
@@ -71,24 +102,26 @@ namespace ClassroomBackend.Controllers
                     var p = new Progress
                     {
                         stid = reader.GetUInt32("stid"),
-                        prid = reader.GetUInt32("prid"),
+                        prid = reader.GetUInt32("taskid"),
                         changed = reader.GetDateTime("date"),
-                        rating = reader.GetInt16("rating"),
-                        scomment = reader.GetString("scomment"),
-                        tcomment = reader.GetString("tcomment"),
+                        rating = safeInt(reader, "rating"),
+                        scomment = safeString(reader, "scomment"),
+                        tcomment = safeString(reader, "tcomment"),
                         assigned = true
                     };
                     prayers.Add(p);
                 }
-
+                IEnumerable<Progress> responseBody = prayers;
+                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
             }
             catch (Exception ex)
             {
-                return null;
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+                // DO NOT DO THIS IN PRODUCTION!
+                var replacement = ex.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0, 255); 
+                response.ReasonPhrase = replacement;
+                return response;
             }
-
-
-            return prayers;
         }
     }
 }
