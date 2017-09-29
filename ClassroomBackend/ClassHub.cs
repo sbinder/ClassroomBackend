@@ -9,9 +9,9 @@ namespace ClassroomBackend
 {
     public class ClassHub : Hub
     {
-        public void Send(string name, string message)
+        public void Send(uint channel, uint stid, bool status)
         {
-            Clients.All.broadcastMessage(name, message);
+            Clients.All.broadcastMessage(channel, stid, status);
         }
 
         public void Hello()

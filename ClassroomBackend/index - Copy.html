@@ -32,16 +32,16 @@
             // Declare a proxy to reference the hub.
             var ClassHub = $.connection.classHub;
             // Create a function that the hub can call to broadcast messages.
-            ClassHub.client.broadcastMessage = function (channel, stid, status) {
+            ClassHub.client.broadcastMessage = function (name, message) {
                 // Html encode display name and message.
-                var encodedName = $('<div />').text(channel).html();
-                var encodedMsg = $('<div />').text("" + stid + (status? " Present" : " Signed Out")).html();
+                var encodedName = $('<div />').text(name).html();
+                var encodedMsg = $('<div />').text(message).html();
                 // Add the message to the page.
                 $('#discussion').append('<li><strong>' + encodedName
                     + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
             };
             // Get the user name and store it to prepend to messages.
-            $('#displayname').val(prompt('Enter Channel name:', ''));
+            $('#displayname').val(prompt('Enter your name:', ''));
             // Set initial focus to message input box.
             $('#message').focus();
             // Start the connection.
