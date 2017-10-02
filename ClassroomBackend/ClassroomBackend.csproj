@@ -143,13 +143,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassHub.cs" />
-    <Compile Include="Controllers\ClassroomController.cs" />
+    <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="Controllers\PrayersController.cs" />
     <Compile Include="Controllers\ProgressController.cs" />
     <Compile Include="Models\Prayer.cs" />
     <Compile Include="Models\Progress.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlHelper.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup />

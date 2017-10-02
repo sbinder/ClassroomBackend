@@ -19,6 +19,54 @@ namespace ClassroomBackend.Controllers
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
+
+
+
+        [HttpPost]
+        //public IEnumerable<Progress> Prayers(List<uint> students)
+        public HttpResponseMessage Prayers(List<uint> students)
+        {
+            List<Progress> prayers = new List<Progress>();
+            var slist = String.Join(",", students);
+            MySqlCommand cmd = db.CreateCommand();
+
+            cmd.CommandText = @"SELECT o.* FROM `progress` o LEFT JOIN `progress` b " +
+                " ON o.stid = b.stid AND o.taskid = b.taskid AND o.date < b.date " +
+                "WHERE o.stid in (" + slist + ") and b.date is NULL";
+
+            try
+            {
+                db.Open();
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var p = new Progress
+                    {
+                        stid = reader.GetUInt32("stid"),
+                        taskid = reader.GetUInt32("taskid"),
+                        changed = reader.GetDateTime("date"),
+                        rating = SqlHelper.SafeInt(reader, "rating"),
+                        scomment = SqlHelper.SafeString(reader, "scomment"),
+                        tcomment = SqlHelper.SafeString(reader, "tcomment"),
+                        assigned = true
+                    };
+                    prayers.Add(p);
+                }
+                IEnumerable<Progress> responseBody = prayers;
+                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+            }
+            catch (Exception ex)
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+                // DO NOT DO THIS IN PRODUCTION!
+                var replacement = ex.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0, 255);
+                response.ReasonPhrase = replacement;
+                return response;
+            }
+        }
+
+
         [HttpPut]
         public HttpResponseMessage Progress(Progress progress)
         {
