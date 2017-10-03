@@ -49,10 +49,21 @@ namespace ClassroomBackend.Controllers
                         rating = SqlHelper.SafeInt(reader, "rating"),
                         scomment = SqlHelper.SafeString(reader, "scomment"),
                         tcomment = SqlHelper.SafeString(reader, "tcomment"),
-                        assigned = true
+                        // assigned = true
                     };
                     prayers.Add(p);
                 }
+                reader.Close();
+                cmd.CommandText = @"select date from progress where stid = @stid and taskid = @taskid order by date limit 1";
+                foreach (var p in prayers)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@stid", p.stid);
+                    cmd.Parameters.AddWithValue("@taskid", p.taskid);
+                    var d = cmd.ExecuteScalar();
+                    if (d != null) { p.assigned = (DateTime)d; }
+                }
+
                 IEnumerable<Progress> responseBody = prayers;
                 return Request.CreateResponse(HttpStatusCode.OK, responseBody);
             }
@@ -72,7 +83,6 @@ namespace ClassroomBackend.Controllers
         {
             // replace with real teacher ID
             const uint teacher = 1;
-
             try
             {
                 var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
@@ -124,7 +134,11 @@ namespace ClassroomBackend.Controllers
 
                 // log exo - DO NOT RETURN IT!
                 var l = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-                l.Content = new StringContent( exo.ToString() );
+                if (progress == null) {
+                    l.ReasonPhrase = "progress is null";
+                } else {
+                    l.ReasonPhrase = exo.ToString().Substring(0, 255);
+                    }
                 return l;
             }                    
         }

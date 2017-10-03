@@ -9,10 +9,11 @@ namespace ClassroomBackend.Models
     {
         public uint stid;
         public uint taskid;
+        public uint tid;
         public int rating;
-        public bool assigned = false;
         public string tcomment;
         public string scomment;
+        public DateTime? assigned = null;
         public DateTime changed;
     }
 }
