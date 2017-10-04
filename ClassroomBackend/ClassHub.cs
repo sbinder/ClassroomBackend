@@ -4,17 +4,30 @@ using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using MySql.Data.MySqlClient;
+using ClassroomBackend.Models;
+using System.Threading.Tasks;
 
 namespace ClassroomBackend
 {
     public class ClassHub : Hub
     {
-        public void Send(uint channel, uint stid, bool status)
+        public Task JoinGroup(uint orgid)
         {
-            if (LogAttendance(stid, status))
-                Clients.All.broadcastMessage(channel, stid, status);
+            return Groups.Add(Context.ConnectionId, orgid.ToString());
         }
 
+        public void Checkin(uint orgid, uint stid, bool status)
+        {
+            if (LogAttendance(stid, status))
+                Clients.All.broadcastMessage(orgid, stid, status);
+        }
+
+        public void ProgressUpdate(Progress progress)
+        {
+            // update DB
+
+            Clients.All.broadcastProgress(progress);
+        }
         public void Hello()
         {
             Clients.All.hello();

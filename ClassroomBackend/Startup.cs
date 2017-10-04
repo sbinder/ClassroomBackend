@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using Microsoft.Owin.Cors;
 using Owin;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
@@ -31,6 +32,7 @@ namespace ClassroomBackend
 
             app.Map("/signalr", map =>
             {
+                map.UseCors(CorsOptions.AllowAll);
                 var hubConfiguration = new HubConfiguration
                 {
 
