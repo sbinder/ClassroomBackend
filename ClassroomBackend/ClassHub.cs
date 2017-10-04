@@ -11,8 +11,15 @@ namespace ClassroomBackend
     {
         public void Send(uint channel, uint stid, bool status)
         {
-            if (LogAttendance(stid, status))
+//            if (LogAttendance(stid, status))
                 Clients.All.broadcastMessage(channel, stid, status);
+        }
+
+        public void Progress(uint channel, uint stid, uint tid, uint taskid, int rating, string tcomment, string scomment)
+        {
+            //update db
+
+            Clients.All.broadcastProgress(channel, stid, tid, taskid, rating, tcomment, scomment);
         }
 
         public void Hello()

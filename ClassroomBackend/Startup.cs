@@ -29,11 +29,11 @@ namespace ClassroomBackend
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            app.Map("/signalr", map =>
+            app.Map("/signalr", map =>                        
             {
                 var hubConfiguration = new HubConfiguration
                 {
-
+                    
                 };
 
                 map.RunSignalR(hubConfiguration);
