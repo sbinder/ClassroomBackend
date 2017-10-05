@@ -59,9 +59,12 @@ namespace ClassroomBackend
                 cmd.ExecuteNonQuery();
             } catch (Exception e)
             {
-                // log exception
+                // log exception               
+
+                db.Close();
                 return false;
             }
+            db.Close();
             return true;
         }
     }

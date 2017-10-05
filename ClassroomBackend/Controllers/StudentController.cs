@@ -51,8 +51,14 @@ namespace ClassroomBackend.Controllers
                     };
                     students.Add(s);
                 }
-                IEnumerable<Student> responseBody = students;
-                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+                if (id == 0)
+                {
+                    IEnumerable<Student> responseBody = students;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+                } else
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, students[0]);
+                }
 
             }
             catch (Exception r)
