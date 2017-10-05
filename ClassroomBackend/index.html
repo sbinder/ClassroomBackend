@@ -14,9 +14,8 @@
 </head>
 <body>
     <div class="container">
-        <input type="text" id="message" />
-        <input type="button" id="sendmessage" value="Send" />
-        <input type="hidden" id="displayname" />
+        <input type="button" id="sendCheckin" value="Checkin" />
+        <input type="button" id="sendProgress" value="Progress" />
         <ul id="discussion"></ul>
     </div>
     <!--Script references. -->
@@ -32,25 +31,32 @@
             // Declare a proxy to reference the hub.
             var ClassHub = $.connection.classHub;
             // Create a function that the hub can call to broadcast messages.
-            ClassHub.client.broadcastMessage = function (channel, stid, status) {
+            ClassHub.client.broadcastCheckin = function (stid, status) {
                 // Html encode display name and message.
-                var encodedName = $('<div />').text(channel).html();
-                var encodedMsg = $('<div />').text("" + stid + (status? " Present" : " Signed Out")).html();
+                var encodedName = $('<div />').text("" + stid).html();
+                var encodedMsg = $('<div />').text(status? " Present" : " Signed Out").html();
                 // Add the message to the page.
                 $('#discussion').append('<li><strong>' + encodedName
                     + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
             };
-            // Get the user name and store it to prepend to messages.
-            $('#displayname').val(prompt('Enter Channel name:', ''));
-            // Set initial focus to message input box.
-            $('#message').focus();
+            ClassHub.client.broadcastProgress = function (progress) {
+                // Html encode display name and message.
+                var encodedName = $('<div />').text(progress.stid.toString()).html();
+                var encodedMsg = $('<div />').text("" + progress.taskid + " Rating:" + progress.rating).html();
+                // Add the message to the page.
+                $('#discussion').append('<li><strong>' + encodedName
+                    + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+            };
             // Start the connection.
             $.connection.hub.start().done(function () {
-                $('#sendmessage').click(function () {
+                ClassHub.server.joinGroup(1);
+                $('#sendCheckin').click(function () {
                     // Call the Send method on the hub.
-                    ClassHub.server.send($('#displayname').val(), $('#message').val());
-                    // Clear text box and reset focus for next comment.
-                    $('#message').val('').focus();
+                    ClassHub.server.checkin(1, 15, true);
+                });
+                $('#sendProgress').click(function () {
+                    // Call the Send method on the hub.
+                    ClassHub.server.progressUpdate(1, { stid: "10", taskid: "11", rating: "55" });
                 });
             });
         });

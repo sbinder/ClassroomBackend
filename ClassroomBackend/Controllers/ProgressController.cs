@@ -81,66 +81,15 @@ namespace ClassroomBackend.Controllers
         [HttpPut]
         public HttpResponseMessage Progress(Progress progress)
         {
-            // replace with real teacher ID
-            const uint teacher = 1;
-            try
+            var helper = new SqlHelper();
+            var err = helper.UpdateProgress(progress);
+            if (err == string.Empty)
             {
-                var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
-                MySqlCommand cmd = db.CreateCommand();
-                cmd.CommandText = @"select count(stid) from progress where stid = @stid and taskid = @taskid and date = @today";
-                cmd.Parameters.AddWithValue("@stid", progress.stid);
-                cmd.Parameters.AddWithValue("@taskid", progress.taskid);
-                cmd.Parameters.AddWithValue("@today", today);
-
-                db.Open();
-                var rowCount = int.Parse(cmd.ExecuteScalar().ToString());
-                if (rowCount > 0)
-                {
-                    // already present: update
-                    var ucmd = db.CreateCommand();
-                    ucmd.CommandText = @"update progress set rating=@rating, scomment=@scomment, tcomment=@tcomment where stid=@stid and taskid=@taskid and date=@date";
-                    ucmd.Parameters.AddWithValue("@stid", progress.stid);
-                    ucmd.Parameters.AddWithValue("@taskid", progress.taskid);
-                    ucmd.Parameters.AddWithValue("@date", today);
-                    ucmd.Parameters.AddWithValue("@tid", teacher);
-                    ucmd.Parameters.AddWithValue("@rating", progress.rating);
-                    ucmd.Parameters.AddWithValue("@scomment", progress.scomment);
-                    ucmd.Parameters.AddWithValue("@tcomment", progress.tcomment);
-                    ucmd.ExecuteNonQuery();
-                    var l = new HttpResponseMessage(HttpStatusCode.OK);
-                    l.Content = new StringContent("OK");
-                    return l;
-                }
-                else
-                {
-                    // not present: create
-                    var icmd = db.CreateCommand();
-                    icmd.CommandText = @"insert into progress (stid, taskid, date, tid, rating, scomment, tcomment) values (@stid, @taskid, @date, @tid, @rating, @scomment, @tcomment)";
-                    icmd.Parameters.AddWithValue("@stid", progress.stid);
-                    icmd.Parameters.AddWithValue("@taskid", progress.taskid);
-                    icmd.Parameters.AddWithValue("@date", today);
-                    icmd.Parameters.AddWithValue("@tid", teacher);
-                    icmd.Parameters.AddWithValue("@rating", progress.rating);
-                    icmd.Parameters.AddWithValue("@scomment", progress.scomment);
-                    icmd.Parameters.AddWithValue("@tcomment", progress.tcomment);
-                    icmd.ExecuteNonQuery();
-                    var l = new HttpResponseMessage(HttpStatusCode.OK);
-                    l.Content = new StringContent("OK");
-                    return l;
-
-                }
-
-            } catch (Exception exo ) {
-
-                // log exo - DO NOT RETURN IT!
-                var l = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-                if (progress == null) {
-                    l.ReasonPhrase = "progress is null";
-                } else {
-                    l.ReasonPhrase = exo.ToString().Substring(0, 255);
-                    }
-                return l;
-            }                    
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            var eresp = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            eresp.ReasonPhrase = err;
+            return eresp;
         }
     }
 }
