@@ -32,9 +32,52 @@ namespace ClassroomBackend
             }
         }
 
+        public static uint SafeUInt(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return 0;
+            }
+            else
+            {
+                return reader.GetUInt32(field);
+            }
+        }
+
         private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
 
         MySqlConnection db = new MySqlConnection(connectionString);
+
+
+        public List<Student> StudentList() // possibly take dates or months as input parameter
+        {
+            var slist = new List<Student>();
+            MySqlCommand cmd = db.CreateCommand();
+            // add upper limit:
+            cmd.CommandText = "select stid, target, fname, lname from student where target > CURDATE()";
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var student = new Student
+                        {
+                            stid = SafeUInt(reader, "stid"),
+                            target = reader.GetDateTime("target"),
+                            fname = SafeString(reader, "fname"),
+                            lname = SafeString(reader, "lname")
+                        };
+                        slist.Add(student);
+                    }
+                }
+            } catch (Exception e)
+            {
+                // log exception here.
+            }
+            return slist;
+        }
 
         public string UpdateProgress(Progress progress)
         {

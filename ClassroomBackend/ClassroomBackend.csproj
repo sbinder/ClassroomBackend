@@ -137,7 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
-    <Content Include="index.html" />
+    <Content Include="index.aspx" />
+    <Content Include="indexx.html" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.2.js" />
@@ -149,6 +150,13 @@
     <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="Controllers\PrayersController.cs" />
     <Compile Include="Controllers\ProgressController.cs" />
+    <Compile Include="index.aspx.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="index.aspx.designer.cs">
+      <DependentUpon>index.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Models\Prayer.cs" />
     <Compile Include="Models\Progress.cs" />
     <Compile Include="Models\Student.cs" />
@@ -170,7 +178,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>55199</DevelopmentServerPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:55199/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
