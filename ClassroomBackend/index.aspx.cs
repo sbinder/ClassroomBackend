@@ -18,7 +18,12 @@ namespace ClassroomBackend
                 if (StudentList.Length > 5) { StudentList += ","; }
                 StudentList += @"{""s"":" + stud.stid +
                     @",""d"":""" + stud.target.ToString("yyyyMMdd") + @"""," +
-                    @"""n"":""" + stud.lname + ", " + stud.fname + @"""}";
+                    @"""n"":""" + stud.lname + ", " + stud.fname;
+                if (stud.present)
+                {
+                    StudentList += @""",""p"":""true";
+                }
+                StudentList += @"""}";
             }
             StudentList += "]";
 

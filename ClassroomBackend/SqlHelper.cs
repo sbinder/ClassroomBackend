@@ -53,8 +53,10 @@ namespace ClassroomBackend
         {
             var slist = new List<Student>();
             MySqlCommand cmd = db.CreateCommand();
+            MySqlCommand acmd = db.CreateCommand();
             // add upper limit:
             cmd.CommandText = "select stid, target, fname, lname from student where target > CURDATE()";
+            acmd.CommandText = "select stid, checkin, status from attendance where checkin > CURDATE() order by stid, checkin";
             db.Open();
             try
             {
@@ -70,6 +72,14 @@ namespace ClassroomBackend
                             lname = SafeString(reader, "lname")
                         };
                         slist.Add(student);
+                    }
+                }
+                using (MySqlDataReader reader = acmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var kid = slist.Find(s => s.stid == SafeUInt(reader, "stid"));
+                        kid.present = reader.GetBoolean("status");
                     }
                 }
             } catch (Exception e)

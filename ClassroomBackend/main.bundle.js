@@ -128,7 +128,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 
 
 // module
-exports.push([module.i, "div {\r\n  text-align: left;\r\n  padding:3px;\r\n}\r\n\r\ndiv.datemark {\r\n  background-color: yellow;\r\n}\r\n\r\ndiv.student {\r\n  padding: .5em 0 .5em 2em;\r\n  background-color: ghostwhite;\r\n  min-width: 20em;\r\n\tdisplay: inline-block;\r\n\tmargin: 2px;\r\n}\r\ndiv.student.sent {\r\n  background-color: blue;\r\n}\r\ndiv.student.present {\r\n  background-color: yellow;\r\n}\r\n", ""]);
+exports.push([module.i, "h2 {\r\n  text-align: center;\r\n  border-bottom: 1px solid darkred;\r\n}\r\ndiv {\r\n  text-align: left;\r\n  padding:3px;\r\n}\r\n\r\ndiv.datemark {\r\n  color: white;\r\n  font-weight: bolder;\r\n  background-color: #000066;\r\n}\r\n\r\ndiv.student {\r\n  padding: .5em 0 .5em 2em;\r\n  background-color: ghostwhite;\r\n  min-width: 20em;\r\n\tdisplay: inline-block;\r\n  margin: 2px;\r\n  cursor: pointer;\r\n}\r\ndiv.student.sent {\r\n  background-color: lawngreen;\r\n}\r\ndiv.student.present {\r\n  background-color: yellow;\r\n}\r\n", ""]);
 
 // exports
 
@@ -141,7 +141,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/studentlist/studentlist.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "  <div>\r\n      <ng-template ngFor let-student [ngForOf]=\"slist\">\r\n          <div *ngIf=\"checkDate(student.d)\" class=\"datemark\">\r\n              {{getdate(student.d) | date:'MMM d, y'}}\r\n          </div>\r\n        <div [ngClass]=\"student.c + ' student'\"\r\n          (click)=\"gotClicked(student.s)\">{{student.n}}\r\n        </div>\r\n        </ng-template>\r\n  </div>\r\n\r\n"
+module.exports = "  <h2>Student Checkin</h2>\r\n  <div>\r\n      <ng-template ngFor let-student [ngForOf]=\"slist\">\r\n          <div *ngIf=\"checkDate(student.d)\" class=\"datemark\">\r\n              {{getdate(student.d) | date:'MMM d, y'}}\r\n          </div>\r\n        <div [ngClass]=\"student.c + ' student'\"\r\n          (click)=\"gotClicked(student.s)\">{{student.n}}\r\n        </div>\r\n        </ng-template>\r\n  </div>\r\n\r\n"
 
 /***/ }),
 
@@ -184,6 +184,13 @@ var StudentlistComponent = (function () {
         $.connection.hub.start()
             .done(function () {
             my.ClassHub.server.joinGroup(1);
+        });
+        // set up initial display
+        console.log(this.slist);
+        this.slist.forEach(function (element) {
+            if (element.p) {
+                element.c = 'present';
+            }
         });
     };
     StudentlistComponent.prototype.sendMessage = function (stid, status) {

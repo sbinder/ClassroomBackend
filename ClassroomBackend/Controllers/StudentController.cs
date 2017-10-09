@@ -18,6 +18,34 @@ namespace ClassroomBackend.Controllers
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
+        // post returns students in attendance
+        [HttpPost]
+        public HttpResponseMessage Post()
+        {
+            SqlHelper sql = new SqlHelper();
+            try
+            {
+                var slist = sql.StudentList();  // all students
+                var students = new List<Student>();                
+                foreach (var s in slist)
+                {
+                    if (s.present) { students.Add(s); }
+                    // if (!s.present) { slist.Remove(s); }
+                }
+                IEnumerable<Student> responseBody = students;
+                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+            } catch (Exception e)
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+                // DO NOT DO THIS IN PRODUCTION!
+                var replacement = e.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0, 255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
+                response.ReasonPhrase = replacement;
+                return response;
+
+            }
+        }
+
+        // get returns all (current?) students in org
         [HttpGet]
         public HttpResponseMessage Get(uint id = 0)
         {
@@ -51,6 +79,7 @@ namespace ClassroomBackend.Controllers
                     };
                     students.Add(s);
                 }
+
                 if (id == 0)
                 {
                     IEnumerable<Student> responseBody = students;

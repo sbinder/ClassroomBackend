@@ -13,5 +13,6 @@ namespace ClassroomBackend.Models
         public string lname;
         public int group;
         public DateTime target;
+        public bool present;
     }
 }
