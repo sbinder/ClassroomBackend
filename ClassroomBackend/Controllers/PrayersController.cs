@@ -10,7 +10,6 @@ using System.Web.Http.Cors;
 
 namespace ClassroomBackend.Controllers
 {
-    // [EnableCors(origins: "*", headers: "*", methods: "*", exposedHeaders: "X-Custom-Header")]
     public class PrayersController : ApiController
     {
 
@@ -22,7 +21,7 @@ namespace ClassroomBackend.Controllers
         public IEnumerable<Prayer> Prayers()
         {
             MySqlCommand cmd = db.CreateCommand();
-            cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = 1 and active = 1";
+            cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = 1 and active = 1 order by ordinal";
             List<Prayer> prayers = new List<Prayer>();
             try
             {
