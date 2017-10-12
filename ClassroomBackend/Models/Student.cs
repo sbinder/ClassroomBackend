@@ -13,6 +13,8 @@ namespace ClassroomBackend.Models
         public string lname;
         public int group;
         public DateTime target;
+        public string torah;
+        public string haftara;
         public bool present;
     }
 }

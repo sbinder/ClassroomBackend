@@ -53,11 +53,11 @@ namespace ClassroomBackend.Controllers
             MySqlCommand cmd = db.CreateCommand();
             if (stid == 0)
             {
-                cmd.CommandText = "select stid, target, lname, fname, liturgy from student where org = 1";
+                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara from student where org = 1";
             }
             else
             {
-                cmd.CommandText = "select stid, target, lname, fname, liturgy from student where stid = @stid";
+                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara from student where stid = @stid";
                 cmd.Parameters.AddWithValue("@stid", stid);
             }
             List<Student> students = new List<Student>();
