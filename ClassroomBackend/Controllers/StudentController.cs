@@ -72,11 +72,13 @@ namespace ClassroomBackend.Controllers
                     var s = new Student
                     {
                         stid = reader.GetUInt32("stid"),
-                        fname = SqlHelper.SafeString(reader, "fname"), //reader.GetString("fname"),
-                        lname = SqlHelper.SafeString(reader, "lname"),    // reader.GetString("lname"),
+                        fname = SqlHelper.SafeString(reader, "fname"),
+                        lname = SqlHelper.SafeString(reader, "lname"),
                         target = reader.GetDateTime("target"),
-                        group = SqlHelper.SafeInt(reader, "liturgy")  //reader.GetInt16("liturgy")
-                    };
+                        group = SqlHelper.SafeInt(reader, "liturgy"),
+                        torah = SqlHelper.SafeString(reader, "torah"),
+                        haftara = SqlHelper.SafeString(reader, "haftara")
+                };
                     students.Add(s);
                 }
 

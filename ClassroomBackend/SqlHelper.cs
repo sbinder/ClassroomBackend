@@ -55,7 +55,7 @@ namespace ClassroomBackend
             MySqlCommand cmd = db.CreateCommand();
             MySqlCommand acmd = db.CreateCommand();
             // add upper limit:
-            cmd.CommandText = "select stid, target, fname, lname from student where target > CURDATE()";
+            cmd.CommandText = "select stid, target, fname, lname, liturgy, torah, haftara from student where target > CURDATE()";
             acmd.CommandText = "select stid, checkin, status from attendance where checkin > CURDATE() order by stid, checkin";
             db.Open();
             try
@@ -69,7 +69,10 @@ namespace ClassroomBackend
                             stid = SafeUInt(reader, "stid"),
                             target = reader.GetDateTime("target"),
                             fname = SafeString(reader, "fname"),
-                            lname = SafeString(reader, "lname")
+                            lname = SafeString(reader, "lname"),
+                            group = SafeInt(reader, "liturgy"),
+                            torah = SafeString(reader, "torah"),
+                            haftara = SafeString(reader, "haftara")
                         };
                         slist.Add(student);
                     }
