@@ -186,10 +186,11 @@ var StudentlistComponent = (function () {
             my.ClassHub.server.joinGroup(1);
         });
         // set up initial display
-        console.log(this.slist);
+        var pcount = 0;
         this.slist.forEach(function (element) {
             if (element.p) {
                 element.c = 'present';
+                pcount++;
             }
         });
     };
@@ -204,7 +205,8 @@ var StudentlistComponent = (function () {
         return true;
     };
     StudentlistComponent.prototype.getdate = function (ds) {
-        var d = new Date(+ds.substr(0, 4), +ds.substr(4, 2), +ds.substr(6));
+        // console.log('date from server', ds);
+        var d = new Date(+ds.substr(0, 4), +ds.substr(4, 2) - 1, +ds.substr(6));
         return d;
     };
     StudentlistComponent.prototype.gotClicked = function (id) {

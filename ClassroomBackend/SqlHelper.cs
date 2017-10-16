@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ClassroomBackend
 {
@@ -44,10 +45,48 @@ namespace ClassroomBackend
             }
         }
 
+        // TODO: change (and move) for production
         private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
+        public User Authorize(string orgid, string username, string password)
+        {
+            MySqlCommand cmd = db.CreateCommand();
+            cmd.CommandText = ("select tid, org, fname, lname, teacher.email, " +
+                "teacher.username, teacher.pwhash from teacher  " +
+                "join org on org.id = teacher.org " +
+                "where org.orgid = @orgid and username = @username and pwhash = @pwhash");
+            try
+            {
+                cmd.Parameters.AddWithValue("@orgid", orgid);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@pwhash", password); // TODO HASH Password first
+
+                db.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var user = new User
+                        {
+                            tid = SafeUInt(reader, "tid"),
+                            org = SafeUInt(reader, "org"),
+                            fname = SafeString(reader, "fname"),
+                            lname = SafeString(reader, "lname"),
+                            username = SafeString(reader, "username"),
+                            email = SafeString(reader, "email")
+                        };
+                        return user;
+                    }
+                }
+            } catch
+            {
+                // TODO log exception
+            }
+            return null;
+        }
 
         public List<Student> StudentList() // possibly take dates or months as input parameter
         {
@@ -85,7 +124,8 @@ namespace ClassroomBackend
                         kid.present = reader.GetBoolean("status");
                     }
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // log exception here.
             }

@@ -22,6 +22,9 @@ namespace ClassroomBackend.Controllers
         [HttpPost]
         public HttpResponseMessage Post()
         {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             SqlHelper sql = new SqlHelper();
             try
             {
@@ -37,11 +40,13 @@ namespace ClassroomBackend.Controllers
             } catch (Exception e)
             {
                 var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+
                 // DO NOT DO THIS IN PRODUCTION!
                 var replacement = e.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0, 255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
                 response.ReasonPhrase = replacement;
-                return response;
 
+                // TODO: Log error
+                return response;
             }
         }
 
@@ -49,6 +54,9 @@ namespace ClassroomBackend.Controllers
         [HttpGet]
         public HttpResponseMessage Get(uint id = 0)
         {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             var stid = id;
             MySqlCommand cmd = db.CreateCommand();
             if (stid == 0)
@@ -95,9 +103,12 @@ namespace ClassroomBackend.Controllers
             catch (Exception r)
             {
                 var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+
                 // DO NOT DO THIS IN PRODUCTION!
                 var replacement = r.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0,255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
                 response.ReasonPhrase = replacement;
+
+                // TODO Log error
                 return response;
             }
         }
