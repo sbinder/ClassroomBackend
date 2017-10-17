@@ -90,6 +90,8 @@ namespace ClassroomBackend
 
         public List<Student> StudentList(uint id = 0) // possibly take dates or months as input parameter
         {
+           string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
+           
             var slist = new List<Student>();
             MySqlCommand cmd = db.CreateCommand();
             MySqlCommand acmd = db.CreateCommand();
