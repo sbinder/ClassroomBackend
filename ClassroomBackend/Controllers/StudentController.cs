@@ -57,60 +57,79 @@ namespace ClassroomBackend.Controllers
             var user = TokenHelper.Authorize(this.Request);
             if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
-            var stid = id;
-            MySqlCommand cmd = db.CreateCommand();
-            if (stid == 0)
+            var helper = new SqlHelper();
+            var students = helper.StudentList(id);
+
+            if (students == null)
             {
-                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara from student where org = 1";
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-            else
+
+            if (id == 0)
             {
-                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara from student where stid = @stid";
-                cmd.Parameters.AddWithValue("@stid", stid);
-            }
-            List<Student> students = new List<Student>();
-            try
+                IEnumerable<Student> responseBody = students;
+                return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+            } else
             {
-                db.Open();
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    var s = new Student
-                    {
-                        stid = reader.GetUInt32("stid"),
-                        fname = SqlHelper.SafeString(reader, "fname"),
-                        lname = SqlHelper.SafeString(reader, "lname"),
-                        target = reader.GetDateTime("target"),
-                        group = SqlHelper.SafeInt(reader, "liturgy"),
-                        torah = SqlHelper.SafeString(reader, "torah"),
-                        haftara = SqlHelper.SafeString(reader, "haftara")
-                };
-                    students.Add(s);
-                }
-
-                if (id == 0)
-                {
-                    IEnumerable<Student> responseBody = students;
-                    return Request.CreateResponse(HttpStatusCode.OK, responseBody);
-                } else
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, students[0]);
-                }
-
+                return Request.CreateResponse(HttpStatusCode.OK, students[0]);
             }
-            catch (Exception r)
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
 
-                // DO NOT DO THIS IN PRODUCTION!
-                var replacement = r.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0,255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
-                response.ReasonPhrase = replacement;
+            //var stid = id;
+            //MySqlCommand cmd = db.CreateCommand();
+            //if (stid == 0)
+            //{
+            //    cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " + 
+            //        "from student where target > CURDATE() and org = 1";
+            //}
+            //else
+            //{
+            //    cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " +
+            //        "from student where stid = @stid";
+            //    cmd.Parameters.AddWithValue("@stid", stid);
+            //}
+            //List<Student> students = new List<Student>();
+            //try
+            //{
+            //    db.Open();
 
-                // TODO Log error
-                return response;
-            }
+            //    MySqlDataReader reader = cmd.ExecuteReader();
+
+            //    while (reader.Read())
+            //    {
+            //        var s = new Student
+            //        {
+            //            stid = reader.GetUInt32("stid"),
+            //            fname = SqlHelper.SafeString(reader, "fname"),
+            //            lname = SqlHelper.SafeString(reader, "lname"),
+            //            target = reader.GetDateTime("target"),
+            //            group = SqlHelper.SafeInt(reader, "liturgy"),
+            //            torah = SqlHelper.SafeString(reader, "torah"),
+            //            haftara = SqlHelper.SafeString(reader, "haftara")
+            //    };
+            //        students.Add(s);
+            //    }
+
+            //    if (id == 0)
+            //    {
+            //        IEnumerable<Student> responseBody = students;
+            //        return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+            //    } else
+            //    {
+            //        return Request.CreateResponse(HttpStatusCode.OK, students[0]);
+            //    }
+
+            //}
+            //catch (Exception r)
+            //{
+            //    var response = Request.CreateResponse(HttpStatusCode.InternalServerError);
+
+            //    // DO NOT DO THIS IN PRODUCTION!
+            //    var replacement = r.ToString().Replace('\n', '*').Replace('\r', '*').Substring(0,255); //Regex.Replace(r.ToString(), @"\t|\n|\r", "*");
+            //    response.ReasonPhrase = replacement;
+
+            //    // TODO Log error
+            //    return response;
+            //}
         }
     }
 }

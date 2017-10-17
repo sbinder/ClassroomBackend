@@ -88,13 +88,27 @@ namespace ClassroomBackend
             return null;
         }
 
-        public List<Student> StudentList() // possibly take dates or months as input parameter
+        public List<Student> StudentList(uint id = 0) // possibly take dates or months as input parameter
         {
             var slist = new List<Student>();
             MySqlCommand cmd = db.CreateCommand();
             MySqlCommand acmd = db.CreateCommand();
             // add upper limit:
-            cmd.CommandText = "select stid, target, fname, lname, liturgy, torah, haftara from student where target > CURDATE()";
+
+            if (id == 0)
+            {
+                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " +
+                    "from student where target > CURDATE() and org = 1";
+            }
+            else
+            {
+                cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " +
+                    "from student where stid = @stid";
+                cmd.Parameters.AddWithValue("@stid", id);
+            }
+
+
+            // cmd.CommandText = "select stid, target, fname, lname, liturgy, torah, haftara from student where target > CURDATE()";
             acmd.CommandText = "select stid, checkin, status from attendance where checkin > CURDATE() order by stid, checkin";
             db.Open();
             try
@@ -116,18 +130,22 @@ namespace ClassroomBackend
                         slist.Add(student);
                     }
                 }
-                using (MySqlDataReader reader = acmd.ExecuteReader())
+                if (id == 0)
                 {
-                    while (reader.Read())
+                    using (MySqlDataReader areader = acmd.ExecuteReader())
                     {
-                        var kid = slist.Find(s => s.stid == SafeUInt(reader, "stid"));
-                        kid.present = reader.GetBoolean("status");
+                        while (areader.Read())
+                        {
+                            var kid = slist.Find(s => s.stid == SafeUInt(areader, "stid"));
+                            kid.present = areader.GetBoolean("status");
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
                 // log exception here.
+                return null;
             }
             return slist;
         }
