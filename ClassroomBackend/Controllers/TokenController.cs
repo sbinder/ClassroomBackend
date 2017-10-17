@@ -29,22 +29,8 @@ namespace ClassroomBackend.Controllers
             });
 
 
-            return Request.CreateResponse(HttpStatusCode.OK, "{\"Token\":\"" + t + "\"}");
-
-            //var pl = helper.DecodeToken(t);
-            //var a = helper.FromPayload(pl, "org");
-            //var b = helper.FromPayload(pl, "tid");
-            //var c = helper.FromPayload(pl, "fn");
-
-            //var str = "Token read.<br />";
-            //if (a == null) str += "org is NULL.<br />";
-            //else str += "org is " + a.ToString() + "<br />";
-
-            //if (b == null) str += "tid is NULL.<br />";
-            //else str += "tid is " + b.ToString() + "<br />";
-
-            //if (c == null) str += "fn is NULL.<br />";
-            //else str += "fn is " + c.ToString() + "<br />";
+            return Request.CreateResponse(HttpStatusCode.OK, "{\"token\":\"" + t + "\"}");
+            //return Request.CreateResponse(HttpStatusCode.OK, "{\"" + t + "\"}");
 
         }
     }

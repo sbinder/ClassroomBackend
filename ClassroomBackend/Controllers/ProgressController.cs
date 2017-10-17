@@ -26,6 +26,10 @@ namespace ClassroomBackend.Controllers
         //public IEnumerable<Progress> Prayers(List<uint> students)
         public HttpResponseMessage Prayers(List<uint> students)
         {
+
+            var user = TokenHelper.Authorize(this.Request);        
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             List<Progress> prayers = new List<Progress>();
             var slist = String.Join(",", students);
             MySqlCommand cmd = db.CreateCommand();
@@ -81,6 +85,9 @@ namespace ClassroomBackend.Controllers
         [HttpPut]
         public HttpResponseMessage Progress(Progress progress)
         {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
             var helper = new SqlHelper();
             var err = helper.UpdateProgress(progress);
             if (err == string.Empty)

@@ -18,8 +18,14 @@ namespace ClassroomBackend.Controllers
         MySqlConnection db = new MySqlConnection(connectionString);
 
         [HttpGet]
-        public IEnumerable<Prayer> Prayers()
+        //public IEnumerable<Prayer> Prayers()
+        public HttpResponseMessage Prayers()
         {
+
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+
             MySqlCommand cmd = db.CreateCommand();
             cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = 1 and active = 1 order by ordinal";
             List<Prayer> prayers = new List<Prayer>();
@@ -41,16 +47,21 @@ namespace ClassroomBackend.Controllers
                     };
                     prayers.Add(p);
                 }
+                //IEnumerable<Prayer> responseBody = prayers;
+                //return Request.CreateResponse(HttpStatusCode.OK, responseBody);
 
-                return prayers;
+                //return prayers;
 
             }
             catch (Exception r)
             {
                 Console.WriteLine("Error: " + r);
+                prayers = new List<Prayer>();   // make sure it's empty
             }
+            IEnumerable<Prayer> responseBody = prayers;
+            return Request.CreateResponse(HttpStatusCode.OK, responseBody);
 
-            return new List<Prayer>();
+            //return new List<Prayer>();
         }
 
     }
