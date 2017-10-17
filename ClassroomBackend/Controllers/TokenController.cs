@@ -29,7 +29,7 @@ namespace ClassroomBackend.Controllers
             });
 
 
-            return Request.CreateResponse(HttpStatusCode.OK, t);
+            return Request.CreateResponse(HttpStatusCode.OK, "{\"Token\":\"" + t + "\"}");
 
             //var pl = helper.DecodeToken(t);
             //var a = helper.FromPayload(pl, "org");
