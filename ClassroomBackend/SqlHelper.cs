@@ -10,45 +10,56 @@ namespace ClassroomBackend
 {
     public class SqlHelper
     {
-        public static string SafeString(MySqlDataReader reader, string field)
-        {
-            if (reader.IsDBNull(reader.GetOrdinal(field)))
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return reader.GetString(field);
-            }
-        }
-        public static int SafeInt(MySqlDataReader reader, string field)
-        {
-            if (reader.IsDBNull(reader.GetOrdinal(field)))
-            {
-                return 0;
-            }
-            else
-            {
-                return reader.GetInt32(field);
-            }
-        }
-
-        public static uint SafeUInt(MySqlDataReader reader, string field)
-        {
-            if (reader.IsDBNull(reader.GetOrdinal(field)))
-            {
-                return 0;
-            }
-            else
-            {
-                return reader.GetUInt32(field);
-            }
-        }
-
-        // TODO: change (and move) for production
         private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
-
         MySqlConnection db = new MySqlConnection(connectionString);
+
+        public List<Parent> FindParent(uint org, string namepart)
+        {
+            var parents = new List<Parent>();
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "select pid, title1, lname1, fname1, email1, " +
+                "title2, lname2, fname2, email2, address1, address2, " +
+                "city, state, zip, comment from parent " +
+                "where org = @org and " +
+                "lname1 like @namepart or lname2 like @namepart";
+            cmd.Parameters.AddWithValue("@org", org);
+            cmd.Parameters.AddWithValue("@namepart", namepart + "%");
+
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var p = new Parent
+                        {
+                            pid = SafeUInt(reader, "pid"),
+                            title1 = SafeString(reader, "title1"),
+                            fname1 = SafeString(reader, "fname1"),
+                            lname1 = SafeString(reader, "lname1"),
+                            email1 = SafeString(reader, "email1"),
+                            title2 = SafeString(reader, "title2"),
+                            fname2 = SafeString(reader, "fname2"),
+                            lname2 = SafeString(reader, "lname2"),
+                            email2 = SafeString(reader, "email2"),
+                            address1 = SafeString(reader, "address1"),
+                            address2 = SafeString(reader, "address2"),
+                            city = SafeString(reader, "city"),
+                            state = SafeString(reader, "state"),
+                            zip = SafeString(reader, "zip"),
+                            comment = SafeString(reader, "comment")
+                        };
+                        parents.Add(p);
+                    }
+                }
+            } catch (Exception e)
+            {
+                // log exception
+                return null;
+            }
+            return parents;
+        }
 
         public User Authorize(string orgid, string username, string password)
         {
@@ -88,7 +99,7 @@ namespace ClassroomBackend
             return null;
         }
 
-        public List<Student> StudentList(uint id = 0) // possibly take dates or months as input parameter
+        public List<Student> StudentList(uint org, uint id = 0) // possibly take dates or months as input parameter
         {
            // string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
            
@@ -100,7 +111,8 @@ namespace ClassroomBackend
             if (id == 0)
             {
                 cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " +
-                    "from student where target > CURDATE() and org = 1";
+                    "from student where target > CURDATE() and org = @org";
+                cmd.Parameters.AddWithValue("@org", org);
             }
             else
             {
@@ -109,9 +121,11 @@ namespace ClassroomBackend
                 cmd.Parameters.AddWithValue("@stid", id);
             }
 
-
-            // cmd.CommandText = "select stid, target, fname, lname, liturgy, torah, haftara from student where target > CURDATE()";
-            acmd.CommandText = "select stid, checkin, status from attendance where checkin > CURDATE() order by stid, checkin";
+            //acmd.CommandText = "select stid, checkin, status from attendance  where checkin > CURDATE() and order by stid, checkin";
+            acmd.CommandText = "select student.stid, checkin, status from attendance " +
+                "join student on student.stid = attendance.stid " + 
+                "where checkin > CURDATE() and org = @org order by stid, checkin";
+            acmd.Parameters.AddWithValue("@org", org);
             db.Open();
             try
             {
@@ -208,6 +222,40 @@ namespace ClassroomBackend
             {
                 // LOG ERRORS in production!
                 return exo.ToString().Substring(0, 255).Replace('\n', ' ').Replace('\r', ' ');
+            }
+        }
+
+        public static string SafeString(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return reader.GetString(field);
+            }
+        }
+        public static int SafeInt(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return 0;
+            }
+            else
+            {
+                return reader.GetInt32(field);
+            }
+        }
+        public static uint SafeUInt(MySqlDataReader reader, string field)
+        {
+            if (reader.IsDBNull(reader.GetOrdinal(field)))
+            {
+                return 0;
+            }
+            else
+            {
+                return reader.GetUInt32(field);
             }
         }
     }

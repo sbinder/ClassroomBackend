@@ -27,7 +27,8 @@ namespace ClassroomBackend.Controllers
 
 
             MySqlCommand cmd = db.CreateCommand();
-            cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = 1 and active = 1 order by ordinal";
+            cmd.CommandText = "select taskid, taskname, ordinal, groupa, groupb, groupx from task where org = @org and active = 1 order by ordinal";
+            cmd.Parameters.AddWithValue("@org", user.org);
             List<Prayer> prayers = new List<Prayer>();
             try
             {

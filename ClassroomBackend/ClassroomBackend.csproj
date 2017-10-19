@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassHub.cs" />
+    <Compile Include="Controllers\ParentController.cs" />
     <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="Controllers\PrayersController.cs" />
     <Compile Include="Controllers\ProgressController.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="index.aspx.designer.cs">
       <DependentUpon>index.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Models\Parent.cs" />
     <Compile Include="Models\Prayer.cs" />
     <Compile Include="Models\Progress.cs" />
     <Compile Include="Models\Student.cs" />
