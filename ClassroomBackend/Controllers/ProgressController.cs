@@ -15,7 +15,7 @@ namespace ClassroomBackend.Controllers
 {
     public class ProgressController : ApiController
     {
-        private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
+        private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
 
         MySqlConnection db = new MySqlConnection(connectionString);
 

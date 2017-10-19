@@ -6,6 +6,7 @@ using Microsoft.AspNet.SignalR;
 using MySql.Data.MySqlClient;
 using ClassroomBackend.Models;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ClassroomBackend
 {
@@ -19,7 +20,12 @@ namespace ClassroomBackend
         public void Checkin(uint orgid, uint stid, bool status)
         {
             if (LogAttendance(stid, status))
+            {
                 Clients.Group(orgid.ToString()).broadcastCheckin(stid, status);
+            } else
+            {
+                Log("DB reported problem.");
+            }
         }
 
         public void ProgressUpdate(uint orgid, Progress progress)
@@ -45,7 +51,7 @@ namespace ClassroomBackend
         // change to return ORGID?
         private bool LogAttendance(uint stid, bool status)
         {
-            string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
 
             MySqlConnection db = new MySqlConnection(connectionString);
             MySqlCommand cmd = db.CreateCommand();
@@ -66,6 +72,18 @@ namespace ClassroomBackend
             }
             db.Close();
             return true;
+        }
+        private void Log(string msg)
+        {
+            //using (StreamWriter w = File.AppendText(@"c:\Log\log.txt"))
+            //{
+            //    w.Write("\r\nLog Entry : ");
+            //    w.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(),
+            //        DateTime.Now.ToLongDateString());
+            //    w.WriteLine("  :");
+            //    w.WriteLine("  :{0}", msg);
+            //    w.WriteLine("-------------------------------");
+            //}
         }
     }
 }

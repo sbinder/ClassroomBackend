@@ -46,7 +46,7 @@ namespace ClassroomBackend
         }
 
         // TODO: change (and move) for production
-        private static string connectionString = "server=localhost;user id = mcuser; password = xT87$nXIaZf0; persistsecurityinfo=True;database=mc";
+        private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
 
         MySqlConnection db = new MySqlConnection(connectionString);
 
@@ -90,7 +90,7 @@ namespace ClassroomBackend
 
         public List<Student> StudentList(uint id = 0) // possibly take dates or months as input parameter
         {
-           string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
+           // string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
            
             var slist = new List<Student>();
             MySqlCommand cmd = db.CreateCommand();
