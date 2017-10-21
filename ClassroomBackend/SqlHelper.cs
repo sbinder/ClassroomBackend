@@ -13,6 +13,56 @@ namespace ClassroomBackend
         private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
         MySqlConnection db = new MySqlConnection(connectionString);
 
+        public List<Student> FindStudent(uint org, string namepart)
+        {
+            var students = new List<Student>();
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "select stid, lname, fname, email, " +
+                "target, parent, teacher, note, username, password, " +
+                "male, trial, liturgy, torah, haftara from student " +
+                "where org = @org and " +
+                "lname like @namepart";
+            cmd.Parameters.AddWithValue("@org", org);
+            cmd.Parameters.AddWithValue("@namepart", namepart + "%");
+
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var p = new Student
+                        {
+                            stid = SafeUInt(reader, "stid"),                            
+                            fname = SafeString(reader, "fname"),
+                            lname = SafeString(reader, "lname"),
+                            email = SafeString(reader, "email"),
+                            target = reader.GetDateTime("target"),
+                            parent = SafeUInt(reader, "parent"),
+                            teacher = SafeUInt(reader, "teacher"),
+                            note = SafeString(reader, "note"),
+                            username = SafeString(reader, "username"),
+                            password = SafeString(reader, "password"),
+                            male = reader.GetBoolean("male"),
+                            trial = reader.GetBoolean("trial"),
+                            group = SafeInt(reader, "liturgy"),
+                            torah = SafeString(reader, "torah"),
+                            haftara = SafeString(reader, "haftara")
+                        };
+                        students.Add(p);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // log exception
+                return null;
+            }
+            return students;
+        }
+
+
         public uint UpdateParent(Parent parent)
         {
             var cmd = db.CreateCommand();

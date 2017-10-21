@@ -50,7 +50,17 @@ namespace ClassroomBackend.Controllers
             }
         }
 
-        // get returns all (current?) students in org
+        [HttpGet]
+        public HttpResponseMessage Get(string namepart)
+        {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+            var helper = new SqlHelper();
+            var students = helper.FindStudent(user.org, namepart);
+            return ReturnStudents(0, students);
+        }
+
         [HttpGet]
         public HttpResponseMessage Get(uint id = 0)
         {
@@ -60,6 +70,12 @@ namespace ClassroomBackend.Controllers
             var helper = new SqlHelper();
             var students = helper.StudentList(user.org, id);
 
+            return ReturnStudents(id, students);
+
+        }
+
+        private HttpResponseMessage ReturnStudents(uint id, List<Student> students)
+        {
             if (students == null)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError);
@@ -69,11 +85,11 @@ namespace ClassroomBackend.Controllers
             {
                 IEnumerable<Student> responseBody = students;
                 return Request.CreateResponse(HttpStatusCode.OK, responseBody);
-            } else
+            }
+            else
             {
                 return Request.CreateResponse(HttpStatusCode.OK, students[0]);
             }
-
         }
     }
 }
