@@ -13,6 +13,57 @@ namespace ClassroomBackend
         private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
         MySqlConnection db = new MySqlConnection(connectionString);
 
+        public uint UpdateParent(Parent parent)
+        {
+            var cmd = db.CreateCommand();
+            try
+            {
+                db.Open();
+                if (parent.pid > 0)
+                {
+                    // update
+                    cmd.CommandText = "update parent set org = @org, title1 = @title1, " +
+                        "lname1 = @lname1, fname1 = @fname1, email1 = @email1, " +
+                        "title2 = @title2, lname2 = @lname2, fname2 = @fname2, email2 = @email2, " +
+                        "address1 = @address1, address2 = @address2, city = @city, " +
+                        "state = @state, zip = @zip, comment = @comment " +
+                        "where pid = @pid;select ROW_COUNT()";
+                    cmd.Parameters.AddWithValue("@pid", parent.pid);
+                }
+                else
+                {
+                    // insert
+                    cmd.CommandText = "insert into parent(org, title1, lname1, fname1, email1, " +
+                       "title2, lname2, fname2, email2, address1, address2, city, state, zip, comment) " +
+                        "values (@org, @title1, @lname1, @fname1, @email1, @title2, @lname2, @fname2, " +
+                        "@email2, @address1, @address2, @city, @state, @zip, @comment)" +
+                        "; select last_insert_id()";
+                }
+                cmd.Parameters.AddWithValue("@org", parent.org);
+                cmd.Parameters.AddWithValue("@title1", parent.title1);
+                cmd.Parameters.AddWithValue("@lname1", parent.lname1);
+                cmd.Parameters.AddWithValue("@fname1", parent.fname1);
+                cmd.Parameters.AddWithValue("@email1", parent.email1);
+                cmd.Parameters.AddWithValue("@title2", parent.title2);
+                cmd.Parameters.AddWithValue("@lname2", parent.lname2);
+                cmd.Parameters.AddWithValue("@fname2", parent.fname2);
+                cmd.Parameters.AddWithValue("@email2", parent.email2);
+                cmd.Parameters.AddWithValue("@address1", parent.address1);
+                cmd.Parameters.AddWithValue("@address2", parent.address2);
+                cmd.Parameters.AddWithValue("@city", parent.city);
+                cmd.Parameters.AddWithValue("@state", parent.state);
+                cmd.Parameters.AddWithValue("@zip", parent.zip);
+                cmd.Parameters.AddWithValue("@comment", parent.comment);
+
+                var result = cmd.ExecuteScalar();
+                if (parent.pid == 0) return uint.Parse(result.ToString());
+                return parent.pid;
+            } catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
         public List<Parent> FindParent(uint org, string namepart)
         {
             var parents = new List<Parent>();
@@ -53,7 +104,8 @@ namespace ClassroomBackend
                         parents.Add(p);
                     }
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // log exception
                 return null;
@@ -92,7 +144,8 @@ namespace ClassroomBackend
                         return user;
                     }
                 }
-            } catch
+            }
+            catch
             {
                 // TODO log exception
             }
@@ -101,8 +154,8 @@ namespace ClassroomBackend
 
         public List<Student> StudentList(uint org, uint id = 0) // possibly take dates or months as input parameter
         {
-           // string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
-           
+            // string constr = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
+
             var slist = new List<Student>();
             MySqlCommand cmd = db.CreateCommand();
             MySqlCommand acmd = db.CreateCommand();
@@ -123,7 +176,7 @@ namespace ClassroomBackend
 
             //acmd.CommandText = "select stid, checkin, status from attendance  where checkin > CURDATE() and order by stid, checkin";
             acmd.CommandText = "select student.stid, checkin, status from attendance " +
-                "join student on student.stid = attendance.stid " + 
+                "join student on student.stid = attendance.stid " +
                 "where checkin > CURDATE() and org = @org order by stid, checkin";
             acmd.Parameters.AddWithValue("@org", org);
             db.Open();

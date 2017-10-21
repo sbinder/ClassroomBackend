@@ -58,7 +58,7 @@ namespace ClassroomBackend.Controllers
             if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
 
             var helper = new SqlHelper();
-            var students = helper.StudentList(id);
+            var students = helper.StudentList(user.org, id);
 
             if (students == null)
             {
