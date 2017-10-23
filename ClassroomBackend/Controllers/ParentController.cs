@@ -11,6 +11,29 @@ namespace ClassroomBackend.Controllers
     public class ParentController : ApiController
     {
         [HttpGet]
+        public HttpResponseMessage Get(uint id)
+        {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+            var helper = new SqlHelper();
+            var parent = helper.GetParent(user.org, id);
+            if (parent == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, parent);
+
+            //var parents = new List<Parent>();
+            //parents.Add(parent);
+
+            //IEnumerable<Parent> responseBody = parents;
+            //return Request.CreateResponse(HttpStatusCode.OK, responseBody);
+        }
+
+
+        [HttpGet]
         public HttpResponseMessage Get(string namepart)
         {
             var user = TokenHelper.Authorize(this.Request);
@@ -25,6 +48,7 @@ namespace ClassroomBackend.Controllers
             IEnumerable<Parent> responseBody = parents;
             return Request.CreateResponse(HttpStatusCode.OK, responseBody);
         }
+
         [HttpPut]
         public HttpResponseMessage Put(Parent parent)
         {
@@ -39,8 +63,9 @@ namespace ClassroomBackend.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
-            // Parent responseBody = parent;
-            return Request.CreateResponse(HttpStatusCode.OK);
+            if (parent.pid == 0) parent.pid = success;
+            Parent responseBody = parent;
+            return Request.CreateResponse(HttpStatusCode.OK, parent);
         }
 
     }

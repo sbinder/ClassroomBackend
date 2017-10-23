@@ -114,6 +114,53 @@ namespace ClassroomBackend
             }
         }
 
+        public Parent GetParent(uint org, uint pid)
+        {
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "select pid, title1, lname1, fname1, email1, " +
+                "title2, lname2, fname2, email2, address1, address2, " +
+                "city, state, zip, comment from parent " +
+                "where pid = @pid and org = @org";
+            cmd.Parameters.AddWithValue("@pid", pid);
+            cmd.Parameters.AddWithValue("@org", org);
+
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var p = new Parent
+                        {
+                            pid = SafeUInt(reader, "pid"),
+                            title1 = SafeString(reader, "title1"),
+                            fname1 = SafeString(reader, "fname1"),
+                            lname1 = SafeString(reader, "lname1"),
+                            email1 = SafeString(reader, "email1"),
+                            title2 = SafeString(reader, "title2"),
+                            fname2 = SafeString(reader, "fname2"),
+                            lname2 = SafeString(reader, "lname2"),
+                            email2 = SafeString(reader, "email2"),
+                            address1 = SafeString(reader, "address1"),
+                            address2 = SafeString(reader, "address2"),
+                            city = SafeString(reader, "city"),
+                            state = SafeString(reader, "state"),
+                            zip = SafeString(reader, "zip"),
+                            comment = SafeString(reader, "comment")
+                        };
+                        return p;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // log exception
+            }
+            return null;
+        }
+
+
         public List<Parent> FindParent(uint org, string namepart)
         {
             var parents = new List<Parent>();
