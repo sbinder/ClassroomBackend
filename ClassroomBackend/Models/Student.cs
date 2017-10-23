@@ -8,6 +8,7 @@ namespace ClassroomBackend.Models
 {
     public class Student
     {
+        public uint org;
         public uint stid;
         public uint parent;
         public uint teacher;

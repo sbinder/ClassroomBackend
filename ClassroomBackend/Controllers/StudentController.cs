@@ -74,6 +74,34 @@ namespace ClassroomBackend.Controllers
 
         }
 
+
+        [HttpPut]
+        public HttpResponseMessage Put(Student student)
+        {
+            var user = TokenHelper.Authorize(this.Request);
+            if (user == null) return Request.CreateResponse(HttpStatusCode.Unauthorized);
+
+            if (student.org != 0 && student.org != user.org)
+            {
+                // TODO log unauthorized
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+            student.org = user.org;
+
+            var helper = new SqlHelper();
+
+            var success = helper.UpdateStudent(student);
+
+            if (success == 0)
+            {
+                
+            }
+            if (student.stid == 0) student.stid = success;
+            
+            return Request.CreateResponse(HttpStatusCode.OK, student);
+        }
+
+
         private HttpResponseMessage ReturnStudents(uint id, List<Student> students)
         {
             if (students == null)

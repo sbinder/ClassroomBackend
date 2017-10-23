@@ -13,55 +13,6 @@ namespace ClassroomBackend
         private static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
         MySqlConnection db = new MySqlConnection(connectionString);
 
-        public List<Student> FindStudent(uint org, string namepart)
-        {
-            var students = new List<Student>();
-            var cmd = db.CreateCommand();
-            cmd.CommandText = "select stid, lname, fname, email, " +
-                "target, parent, teacher, note, username, password, " +
-                "male, trial, liturgy, torah, haftara from student " +
-                "where org = @org and " +
-                "lname like @namepart";
-            cmd.Parameters.AddWithValue("@org", org);
-            cmd.Parameters.AddWithValue("@namepart", namepart + "%");
-
-            db.Open();
-            try
-            {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var p = new Student
-                        {
-                            stid = SafeUInt(reader, "stid"),                            
-                            fname = SafeString(reader, "fname"),
-                            lname = SafeString(reader, "lname"),
-                            email = SafeString(reader, "email"),
-                            target = reader.GetDateTime("target"),
-                            parent = SafeUInt(reader, "parent"),
-                            teacher = SafeUInt(reader, "teacher"),
-                            note = SafeString(reader, "note"),
-                            username = SafeString(reader, "username"),
-                            password = SafeString(reader, "password"),
-                            male = reader.GetBoolean("male"),
-                            trial = reader.GetBoolean("trial"),
-                            group = SafeInt(reader, "liturgy"),
-                            torah = SafeString(reader, "torah"),
-                            haftara = SafeString(reader, "haftara")
-                        };
-                        students.Add(p);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                // log exception
-                return null;
-            }
-            return students;
-        }
-
 
         public uint UpdateParent(Parent parent)
         {
@@ -160,7 +111,6 @@ namespace ClassroomBackend
             return null;
         }
 
-
         public List<Parent> FindParent(uint org, string namepart)
         {
             var parents = new List<Parent>();
@@ -210,43 +160,111 @@ namespace ClassroomBackend
             return parents;
         }
 
-        public User Authorize(string orgid, string username, string password)
+
+        public uint UpdateStudent(Student student)
         {
-            MySqlCommand cmd = db.CreateCommand();
-            cmd.CommandText = ("select tid, org, fname, lname, teacher.email, " +
-                "teacher.username, teacher.pwhash from teacher  " +
-                "join org on org.id = teacher.org " +
-                "where org.orgid = @orgid and username = @username and pwhash = @pwhash");
+            var cmd = db.CreateCommand();
             try
             {
-                cmd.Parameters.AddWithValue("@orgid", orgid);
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@pwhash", password); // TODO HASH Password first
-
                 db.Open();
+                if (student.stid > 0)
+                {
+                    // update
+                    cmd.CommandText = "update student set target = @target, parent = @parent, " +
+                        "teacher = @teacher, lname = @lname, fname = @fname, email = @email, " +
+                        "note = @note, username = @username, password = @password, " +
+                        "expires = @expires, male = @male, trial = @trial, " +
+                        "liturgy = @liturgy, torah = @torah, haftara = @haftara " +
+                        "where stid = @stid;select ROW_COUNT()";
+                    cmd.Parameters.AddWithValue("@stid", student.stid);
 
+                }
+                else
+                {
+                    // insert
+                    cmd.CommandText = "insert into student(org, target, parent, teacher, lname, fname, email, " +
+                       "note, username, password, expires, male, trial, liturgy, torah, haftara) " +
+                        "values (@org, @target, @parent, @teacher, @lname, @fname, @email, " +
+                       "@note, @username, @password, @expires, @male, @trial, @liturgy, @torah, @haftara)" +
+                        "; select last_insert_id()";
+
+                }
+                cmd.Parameters.AddWithValue("@org", student.org);
+                cmd.Parameters.AddWithValue("@target", student.target);
+                cmd.Parameters.AddWithValue("@parent", student.parent);
+                cmd.Parameters.AddWithValue("@teacher", student.teacher);
+                cmd.Parameters.AddWithValue("@lname", student.lname);
+                cmd.Parameters.AddWithValue("@fname", student.fname);
+                cmd.Parameters.AddWithValue("@email", student.email);
+                cmd.Parameters.AddWithValue("@note", student.note);
+                cmd.Parameters.AddWithValue("@username", student.username);
+                cmd.Parameters.AddWithValue("@password", student.password);
+                cmd.Parameters.AddWithValue("@expires", new DateTime(2099,1,1));
+                cmd.Parameters.AddWithValue("@male", student.male);
+                cmd.Parameters.AddWithValue("@trial", false);
+                cmd.Parameters.AddWithValue("@liturgy", student.group);
+                cmd.Parameters.AddWithValue("@torah", student.torah);
+                cmd.Parameters.AddWithValue("@haftara", student.haftara);
+
+
+                var result = cmd.ExecuteScalar();
+                if (student.stid == 0) return uint.Parse(result.ToString());
+                return student.stid;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+
+        public List<Student> FindStudent(uint org, string namepart)
+        {
+            var students = new List<Student>();
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "select stid, lname, fname, email, " +
+                "target, parent, teacher, note, username, password, " +
+                "male, trial, liturgy, torah, haftara from student " +
+                "where org = @org and " +
+                "lname like @namepart";
+            cmd.Parameters.AddWithValue("@org", org);
+            cmd.Parameters.AddWithValue("@namepart", namepart + "%");
+
+            db.Open();
+            try
+            {
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        var user = new User
+                        var p = new Student
                         {
-                            tid = SafeUInt(reader, "tid"),
-                            org = SafeUInt(reader, "org"),
+                            stid = SafeUInt(reader, "stid"),
                             fname = SafeString(reader, "fname"),
                             lname = SafeString(reader, "lname"),
+                            email = SafeString(reader, "email"),
+                            target = reader.GetDateTime("target"),
+                            parent = SafeUInt(reader, "parent"),
+                            teacher = SafeUInt(reader, "teacher"),
+                            note = SafeString(reader, "note"),
                             username = SafeString(reader, "username"),
-                            email = SafeString(reader, "email")
+                            password = SafeString(reader, "password"),
+                            male = reader.GetBoolean("male"),
+                            trial = reader.GetBoolean("trial"),
+                            group = SafeInt(reader, "liturgy"),
+                            torah = SafeString(reader, "torah"),
+                            haftara = SafeString(reader, "haftara")
                         };
-                        return user;
+                        students.Add(p);
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
-                // TODO log exception
+                // log exception
+                return null;
             }
-            return null;
+            return students;
         }
 
         public List<Student> StudentList(uint org, uint id = 0) // possibly take dates or months as input parameter
@@ -374,6 +392,46 @@ namespace ClassroomBackend
                 return exo.ToString().Substring(0, 255).Replace('\n', ' ').Replace('\r', ' ');
             }
         }
+
+        public User Authorize(string orgid, string username, string password)
+        {
+            MySqlCommand cmd = db.CreateCommand();
+            cmd.CommandText = ("select tid, org, fname, lname, teacher.email, " +
+                "teacher.username, teacher.pwhash from teacher  " +
+                "join org on org.id = teacher.org " +
+                "where org.orgid = @orgid and username = @username and pwhash = @pwhash");
+            try
+            {
+                cmd.Parameters.AddWithValue("@orgid", orgid);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@pwhash", password); // TODO HASH Password first
+
+                db.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var user = new User
+                        {
+                            tid = SafeUInt(reader, "tid"),
+                            org = SafeUInt(reader, "org"),
+                            fname = SafeString(reader, "fname"),
+                            lname = SafeString(reader, "lname"),
+                            username = SafeString(reader, "username"),
+                            email = SafeString(reader, "email")
+                        };
+                        return user;
+                    }
+                }
+            }
+            catch
+            {
+                // TODO log exception
+            }
+            return null;
+        }
+
 
         public static string SafeString(MySqlDataReader reader, string field)
         {
