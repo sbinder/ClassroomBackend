@@ -119,7 +119,7 @@ namespace ClassroomBackend
                 "title2, lname2, fname2, email2, address1, address2, " +
                 "city, state, zip, comment from parent " +
                 "where org = @org and " +
-                "lname1 like @namepart or lname2 like @namepart";
+                "lname1 like @namepart or lname2 like @namepart order by lname1, fname1";
             cmd.Parameters.AddWithValue("@org", org);
             cmd.Parameters.AddWithValue("@namepart", namepart + "%");
 
@@ -226,7 +226,7 @@ namespace ClassroomBackend
                 "target, parent, teacher, note, username, password, " +
                 "male, trial, liturgy, torah, haftara from student " +
                 "where org = @org and " +
-                "lname like @namepart";
+                "lname like @namepart order by lname, fname";
             cmd.Parameters.AddWithValue("@org", org);
             cmd.Parameters.AddWithValue("@namepart", namepart + "%");
 
@@ -279,7 +279,7 @@ namespace ClassroomBackend
             if (id == 0)
             {
                 cmd.CommandText = "select stid, target, lname, fname, liturgy, torah, haftara " +
-                    "from student where target > CURDATE() and org = @org";
+                    "from student where target > CURDATE() and org = @org order by target, lname, fname";
                 cmd.Parameters.AddWithValue("@org", org);
             }
             else
