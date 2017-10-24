@@ -111,6 +111,93 @@ namespace ClassroomBackend
             return null;
         }
 
+        public List<Phone> GetPhones(uint pid)
+        {
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "select phone, label from phones where family = @pid order by label";
+            cmd.Parameters.AddWithValue("@pid", pid);
+
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    var phones = new List<Phone>();
+                    while (reader.Read())
+                    {
+                        var p = new Phone
+                        {
+                            digits = SafeString(reader, "phone"),
+                            label = SafeString(reader, "label")
+                        };
+                        phones.Add(p);
+                    }
+                    return phones;
+                }
+            }
+            catch (Exception e)
+            {
+                // log exception
+            }
+            return null;
+        }
+
+        public int DeletePhone(uint pid, string digits)
+        {
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "delete from phones where family = @pid and phone = @digits";
+            cmd.Parameters.AddWithValue("@pid", pid);
+            cmd.Parameters.AddWithValue("@digits", digits);
+            db.Open();
+            try
+            {
+                return cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        //public int AddPhone(uint pid, string digits, string label)
+        public int AddPhone(Phone phone)
+        {
+            var scmd = db.CreateCommand();
+            scmd.CommandText = "select phone, label from phones where family = @pid and phone = @digits";
+            scmd.Parameters.AddWithValue("@pid", phone.pid);
+            scmd.Parameters.AddWithValue("@digits", phone.digits);
+            scmd.Parameters.AddWithValue("@label", phone.label);
+
+            var cmd = db.CreateCommand();
+            cmd.CommandText = "insert into phones (family, phone, label) " + 
+                "values (@pid, @digits, @label);select ROW_COUNT()";
+            cmd.Parameters.AddWithValue("@pid", phone.pid);
+            cmd.Parameters.AddWithValue("@digits", phone.digits);
+            cmd.Parameters.AddWithValue("@label", phone.label);
+            db.Open();
+            try
+            {
+                using (MySqlDataReader reader = scmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        if (SafeString(reader, "label") == phone.label) return 0;
+                        reader.Close();
+                        cmd.CommandText = "update phones set label = @label " +
+                            "where family = @pid and phone = @digits;select ROW_COUNT()";
+                        return cmd.ExecuteNonQuery();
+                    }
+                }
+                return cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+
+
         public List<Parent> FindParent(uint org, string namepart)
         {
             var parents = new List<Parent>();
@@ -159,7 +246,6 @@ namespace ClassroomBackend
             }
             return parents;
         }
-
 
         public uint UpdateStudent(Student student)
         {
@@ -216,7 +302,6 @@ namespace ClassroomBackend
                 return 0;
             }
         }
-
 
         public List<Student> FindStudent(uint org, string namepart)
         {
@@ -393,7 +478,7 @@ namespace ClassroomBackend
             }
         }
 
-        public User Authorize(string orgid, string username, string password)
+       public User Authorize(string orgid, string username, string password)
         {
             MySqlCommand cmd = db.CreateCommand();
             cmd.CommandText = ("select tid, org, fname, lname, teacher.email, " +
