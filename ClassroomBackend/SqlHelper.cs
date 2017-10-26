@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using System.Web;
 using System.IdentityModel.Tokens.Jwt;
@@ -162,17 +163,25 @@ namespace ClassroomBackend
         //public int AddPhone(uint pid, string digits, string label)
         public int AddPhone(Phone phone)
         {
+            // assure number is numeric
+            StringBuilder pn = new StringBuilder(18);
+            for (int i = 0; i < phone.digits.Length; i++)
+            {
+                if (char.IsDigit(phone.digits[i])) pn.Append(phone.digits[i]);
+            }
+            if (pn.Length == 0) return 0;
+
             var scmd = db.CreateCommand();
             scmd.CommandText = "select phone, label from phones where family = @pid and phone = @digits";
             scmd.Parameters.AddWithValue("@pid", phone.pid);
-            scmd.Parameters.AddWithValue("@digits", phone.digits);
+            scmd.Parameters.AddWithValue("@digits", pn);
             scmd.Parameters.AddWithValue("@label", phone.label);
 
             var cmd = db.CreateCommand();
             cmd.CommandText = "insert into phones (family, phone, label) " + 
                 "values (@pid, @digits, @label);select ROW_COUNT()";
             cmd.Parameters.AddWithValue("@pid", phone.pid);
-            cmd.Parameters.AddWithValue("@digits", phone.digits);
+            cmd.Parameters.AddWithValue("@digits", pn);
             cmd.Parameters.AddWithValue("@label", phone.label);
             db.Open();
             try

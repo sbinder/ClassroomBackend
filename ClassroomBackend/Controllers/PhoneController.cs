@@ -38,7 +38,7 @@ namespace ClassroomBackend.Controllers
             var result = sql.DeletePhone(pid, phone);
             if (result > 0)
             {
-                return new HttpResponseMessage(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, "{}");
             }
             return new HttpResponseMessage(HttpStatusCode.InternalServerError);
         }
